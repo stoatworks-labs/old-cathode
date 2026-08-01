@@ -1,0 +1,11 @@
+{
+  "name": "old-cathode",
+  "version-string": "0.1.0",
+  "description": "Dependencies for building the Old Cathode FFGL plugin. GLEW is only needed on Windows; macOS uses the system OpenGL framework.",
+  "dependencies": [
+    {
+      "name": "glew",
+      "platform": "!osx"
+    }
+  ]
+}
