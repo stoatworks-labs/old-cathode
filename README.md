@@ -6,9 +6,9 @@
 > plugin class in a headless GL context — colour bars round-trip to the right
 > hues, the mask compensation is measured rather than guessed, and the PAL delay
 > line is confirmed to hold hue to 0.0° under a decoder phase error that shifts
-> NTSC by up to 26° (see [Status](#status)). It has **never been loaded into
-> Resolume**, because this machine cannot run it. Check it in your own rig before
-> trusting it in a show.
+> NTSC by up to 26° (see [Status](#status)). It has **not yet been loaded into
+> Resolume**, so nothing about how it behaves inside a real host is confirmed.
+> Check it in your own rig before trusting it in a show.
 
 An analogue television signal path for [Resolume](https://resolume.com) Arena and
 Avenue, as an FFGL effect.
@@ -177,7 +177,7 @@ Verified through the offline harness on an M4 Max:
 
 Not verified:
 
-- **Never loaded into Resolume.** Parameter groups, option dropdowns and the
+- **Not yet loaded into Resolume.** Parameter groups, option dropdowns and the
   host's real texture sizes and premultiplication behaviour are all unconfirmed.
 - **Windows and the universal macOS build have never been run**, only built.
 

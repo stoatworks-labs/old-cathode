@@ -149,7 +149,8 @@ PAL, before believing it.
 There is no unit test rig and there cannot usefully be one — the output is a
 picture. `tools/octest` is the substitute: a headless GL 4.1 core context driving
 the **real** `OldCathode` class through the **real** FFGL entry sequence, writing
-a PNG.
+a PNG. It is faster to iterate on than the host and it can be measured, so reach
+for it first even when Resolume is available.
 
 It is deterministic (time comes from the frame counter, not the clock), so two
 runs produce identical pixels and a change that was not supposed to alter the
@@ -183,9 +184,12 @@ the averaging have got out of step in `decodeLine`.
 
 ## 6. What has never been checked
 
-- **It has never been loaded into Resolume.** This machine cannot run it.
-  Parameter groups, the option dropdowns, and the host's real texture sizes and
-  premultiplication behaviour are all unconfirmed.
+- **It has not been loaded into Resolume.** Arena *is* installed on the
+  development machine and `cmake --install` puts the bundle where it will be
+  found, but nothing has been driven through the host. Parameter groups, the
+  option dropdowns, and the host's real texture sizes and premultiplication
+  behaviour are all unconfirmed — and those are exactly the things the offline
+  harness cannot tell you about, because it supplies its own textures.
 - **The Windows build and the universal macOS build have never been run**, only
   compiled.
 - All performance figures come from one M4 Max, never from CI — hosted macOS
