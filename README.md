@@ -6,9 +6,10 @@
 > plugin class in a headless GL context — colour bars round-trip to the right
 > hues, the mask compensation is measured rather than guessed, and the PAL delay
 > line is confirmed to hold hue to 0.0° under a decoder phase error that shifts
-> NTSC by up to 26° (see [Status](#status)). It has **not yet been loaded into
-> Resolume**, so nothing about how it behaves inside a real host is confirmed.
-> Check it in your own rig before trusting it in a show.
+> NTSC by up to 26° (see [Status](#status)). It **loads in Resolume Arena 7.27.0
+> and all six shader stages compile there**, but it has not yet been rendered
+> through the host onto real footage. Check it in your own rig before trusting it
+> in a show.
 
 An analogue television signal path for [Resolume](https://resolume.com) Arena and
 Avenue, as an FFGL effect.
@@ -179,10 +180,20 @@ Verified through the offline harness on an M4 Max:
   runs at the SD raster, so it barely scales with composition size. Both figures
   are from one machine, not from CI.
 
+Verified inside Resolume Arena 7.27.0 (macOS, Apple M4 Max, GL 4.1 Metal - 90.5):
+
+- **It loads, and all six shader stages compile in the host.** `InitGL` succeeded
+  on every one of 142 instantiations during a session — Arena builds the effect
+  repeatedly for its browser previews, so that is 142 clean shader compiles.
+- **Arena registers it correctly**, reported by Arena's own REST API alongside its
+  128 built-in effects: idstring `OC01`, name `Old Cathode`, category
+  `Video Effects`, description intact.
+
 Not verified:
 
-- **Not yet loaded into Resolume.** Parameter groups, option dropdowns and the
-  host's real texture sizes and premultiplication behaviour are all unconfirmed.
+- **Never rendered through the host onto footage.** Parameter groups, the option
+  dropdowns, and Arena's real texture sizes and premultiplication behaviour are
+  still unconfirmed — loading cleanly is not the same as looking right.
 - **Windows and the universal macOS build have never been run**, only built.
 
 ## Licence

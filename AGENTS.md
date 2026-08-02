@@ -206,16 +206,47 @@ the averaging have got out of step in `decodeLine`.
 
 ## 6. What has never been checked
 
-- **It has not been loaded into Resolume.** Arena *is* installed on the
-  development machine and `cmake --install` puts the bundle where it will be
-  found, but nothing has been driven through the host. Parameter groups, the
-  option dropdowns, and the host's real texture sizes and premultiplication
-  behaviour are all unconfirmed — and those are exactly the things the offline
-  harness cannot tell you about, because it supplies its own textures.
+- **It has never been rendered through Resolume onto footage.** It *loads* there
+  — see below — but loading cleanly is not the same as looking right. Parameter
+  groups, the option dropdowns, and Arena's real texture sizes and
+  premultiplication behaviour are all unconfirmed, and those are exactly what the
+  offline harness cannot tell you about, because it supplies its own textures.
 - **The Windows build and the universal macOS build have never been run**, only
   compiled.
 - All performance figures come from one M4 Max, never from CI — hosted macOS
   runners have no GPU.
+
+## 6b. Driving Resolume, when you need to
+
+Arena is installed on the development machine and `cmake --install` puts the
+bundle where it looks. Two things make it drivable without clicking at
+coordinates, and one trap will waste your time.
+
+**Arena is accessible.** Its dialogs answer to
+`System Events` by button name — `click button "Remind Me Later" of window 1` —
+so the update prompt and the composition confirmations can be dismissed
+properly. The custom-drawn buttons inside a confirmation are *not* in the tree;
+get the window's `position`/`size` and click a computed point instead, and check
+which button you are aiming at first. "New Composition!" offers
+**New / Cancel / Save & New** with **Save & New as the highlighted default**, so
+never dismiss one with Return.
+
+**Arena has a REST API on `http://127.0.0.1:8080/api/v1`.** `GET .../effects`
+is the honest answer to "did the plugin register", and it is how the idstring,
+name, category and description in this repo were checked against what the host
+actually parsed. `GET .../composition/layers/{n}/clips/{n}` gives the applied
+effects and their parameters.
+
+**The trap:** `POST .../clips/{n}/open` **returns 200 and ignores the path you
+sent it.** Every body format tried — JSON string, `text/plain`, no content type —
+answered 200 and loaded an unrelated file from the operator's own media folder.
+It is a silent no-op in the same family as Konnect's `add_via`. Do not build
+anything on it, and verify what actually loaded by reading `fileinfo.path` back.
+There is also **no endpoint for adding an effect** — `POST .../effects` is 404 —
+so applying the effect is a UI job.
+
+**Whatever you do, do not film or modify the operator's own composition.** Check
+a composition's file checksum before and after if you touch Arena at all.
 
 ## 7. Conventions
 
