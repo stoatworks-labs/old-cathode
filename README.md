@@ -171,6 +171,10 @@ Verified through the offline harness on an M4 Max:
 - **The PAL delay line works.** Under a 16.8° decoder reference error, NTSC hue
   shifts by 6.5–26° across the bars while PAL holds hue at 0.0° and loses ~8%
   saturation instead — which is the trade PAL exists to make.
+- **All 33 controls demonstrably do something.** `tools/sweep.py` renders every
+  parameter at both ends of its range and fails if any made no difference — the
+  only way to catch a uniform name that does not match between the C++ and the
+  GLSL, since that fails silently rather than at build time.
 - **Cost is 0.34 ms/frame at 1080p and 0.83 ms at 4K.** The expensive filtering
   runs at the SD raster, so it barely scales with composition size. Both figures
   are from one machine, not from CI.

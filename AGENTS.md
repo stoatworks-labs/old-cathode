@@ -169,7 +169,29 @@ What the default test card is for, band by band:
 A photograph would hide every one of those. When changing the signal maths, test
 against this, not against footage.
 
-Two checks worth re-running after any change to the decoder:
+### A dead control is invisible to the compiler
+
+`tools/sweep.py` renders every parameter at both ends of its range and fails if
+any of them made no difference to the picture.
+
+```bash
+python3 tools/sweep.py
+```
+
+**Run it after adding a parameter, renaming a uniform, or moving anything between
+the C++ and the GLSL.** A uniform name that does not match is silently ignored —
+`glGetUniformLocation` returns -1 and `glUniform` on -1 is a documented no-op —
+so a control can be completely dead while everything compiles, links, loads and
+renders. Nothing else here catches that.
+
+It found two suspects on its first run; both were instructive rather than typos.
+Scanlines read dead because the sweep was rendering at 480×360, where 486 lines
+is 0.74 output pixels each and the anti-aliasing correctly gives up. Corner
+Radius read dead because the curvature crop had already blacked out the corners
+it cuts — which was a real design flaw, and the reason the tube pass now
+overscans.
+
+### Checks worth re-running after any change to the decoder
 
 ```bash
 # Level must survive the round trip. Expect ~0.502 in and out.

@@ -163,7 +163,22 @@ void main()
 	//----------------------------------------------------------------------
 	// 2. Undo the curvature. The face bulges, so the sampling pinches.
 	//----------------------------------------------------------------------
-	vec2 curved = tube * ( 1.0 + Curvature * 0.5 * dot( tube, tube ) );
+	//
+	// Divided through by the expansion at the corner, which is overscan: a set
+	// deliberately scans a raster larger than its own tube face, so the picture
+	// reaches the bezel on all four sides and the blanking edges stay hidden
+	// behind it. It is not cosmetic here. Without it the distortion pulls the
+	// picture's own corners inside the glass and shows black beyond them -- the
+	// one thing a correctly set-up television never does -- and the shape you
+	// see at the edge of the screen becomes an artefact of the curvature
+	// instead of the shape of the tube, which leaves Corner Radius doing
+	// nothing at any useful curvature.
+	//
+	// The coupling to Curvature is real: more distortion means more overscan is
+	// needed to cover the same face. Zoom is separate and stays separate -- that
+	// moves the set relative to the viewer, and takes the tube with it.
+	float cornerExpansion = 1.0 + Curvature;//0.5 * dot( tube, tube ) at the corner is 1
+	vec2 curved = tube * ( 1.0 + Curvature * 0.5 * dot( tube, tube ) ) / cornerExpansion;
 	vec2 signalUV = curved * 0.5 + 0.5;
 
 	//----------------------------------------------------------------------
