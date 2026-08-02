@@ -68,7 +68,7 @@ PAL decoder averages each line with the one above it and a phase error cancels.
 
 | Build | Download | Size |
 | --- | --- | --- |
-| Universal (Apple Silicon + Intel) · .dmg disk image | [`old-cathode-0.1.0-macos-universal.dmg`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.0/old-cathode-0.1.0-macos-universal.dmg) | 201 KB |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`old-cathode-0.1.0-macos-universal.dmg`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.1/old-cathode-0.1.1-macos-universal.dmg) | 197 KB |
 | Universal (Apple Silicon + Intel) · .zip archive | [`old-cathode-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-macos-universal.zip) | 157 KB |
 
 </details>
@@ -78,7 +78,7 @@ PAL decoder averages each line with the one above it and a phase error cancels.
 
 | Build | Download | Size |
 | --- | --- | --- |
-| x64 · .exe installer | [`old-cathode-0.1.0-windows-x86_64-setup.exe`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.0/old-cathode-0.1.0-windows-x86_64-setup.exe) | 217 KB |
+| x64 · .exe installer | [`old-cathode-0.1.0-windows-x86_64-setup.exe`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.1/old-cathode-0.1.1-windows-x86_64-setup.exe) | 213 KB |
 | x64 · .zip archive | [`old-cathode-windows-x86_64.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-windows-x86_64.zip) | 109 KB |
 
 </details>
