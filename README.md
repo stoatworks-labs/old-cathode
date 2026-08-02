@@ -55,6 +55,36 @@ because chrominance sits at the top of the band and goes under the noise floor
 first. Setting the system to PAL changes what the Tint control does, because a
 PAL decoder averages each line with the one above it and a phase error cancels.
 
+<!-- downloads:start -->
+
+## Download
+
+**[v0.1.0](https://github.com/stoatworks-labs/old-cathode/releases/tag/v0.1.0)** — prebuilt for macOS and Windows. Pick your platform:
+
+<details>
+<summary><b>macOS</b> — Universal (Apple Silicon + Intel)</summary>
+
+| Build | Download | Size |
+| --- | --- | --- |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`old-cathode-0.1.0-macos-universal.dmg`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.0/old-cathode-0.1.0-macos-universal.dmg) | 201 KB |
+| Universal (Apple Silicon + Intel) · .zip archive | [`old-cathode-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-macos-universal.zip) | 157 KB |
+
+</details>
+
+<details>
+<summary><b>Windows</b> — x64</summary>
+
+| Build | Download | Size |
+| --- | --- | --- |
+| x64 · .exe installer | [`old-cathode-0.1.0-windows-x86_64-setup.exe`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.0/old-cathode-0.1.0-windows-x86_64-setup.exe) | 217 KB |
+| x64 · .zip archive | [`old-cathode-windows-x86_64.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-windows-x86_64.zip) | 109 KB |
+
+</details>
+
+All builds, checksums and release notes: [github.com/stoatworks-labs/old-cathode/releases](https://github.com/stoatworks-labs/old-cathode/releases).
+
+<!-- downloads:end -->
+
 ## Controls
 
 Grouped in the inspector as **Signal**, **Sync**, **Tube** and **Geometry** —
