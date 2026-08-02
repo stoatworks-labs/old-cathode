@@ -190,6 +190,17 @@ luma filter gives up and where cross-colour starts, a hard edge for chroma bleed
 a ramp for linearity. `--flat` and `--measure` are what the mask gains were
 calibrated with.
 
+`--pipe` puts real footage through the chain instead, reading raw RGBA frames
+from stdin and writing them to stdout:
+
+```bash
+ffmpeg -i in.mov -f rawvideo -pix_fmt rgba - | ./build/octest --pipe --width 1920 --height 1080 --script params.txt | ffmpeg -f rawvideo -pix_fmt rgba -s 1920x1080 -r 30 -i - out.mp4
+```
+
+`--script` is parameter automation — a text file of `frame  Parameter Name
+value` lines, held before the first key and after the last, linearly
+interpolated between. That is how the video above was made.
+
 ## Status
 
 Verified through the offline harness on an M4 Max:

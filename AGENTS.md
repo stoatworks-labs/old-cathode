@@ -156,6 +156,20 @@ It is deterministic (time comes from the frame counter, not the clock), so two
 runs produce identical pixels and a change that was not supposed to alter the
 picture can be checked byte for byte.
 
+`--pipe` reads raw RGBA frames from stdin and writes them to stdout, so real
+footage goes through the chain with `ffmpeg | octest | ffmpeg`, and `--script`
+automates the parameters over the sequence. That is what the project video is
+built from — see `stoatworks-backend/video/projects/old-cathode/render.py`, which
+also records why this project renders its footage rather than filming the plugin
+in Resolume like every other video in the series films its app.
+
+Two things about `--pipe` that are easy to get wrong. **stdout is the video**, so
+anything conversational has to go to stderr or it lands inside a frame. And the
+flips do **not** cancel: ffmpeg hands over top-down rows and GL wants bottom-up,
+so the frame is flipped on the way in and again on the way out. Skipping both
+looks almost right and puts the head-switch tear at the top of the picture
+instead of the bottom.
+
 What the default test card is for, band by band:
 
 - **Colour bars** — does the encode/decode round trip return the hues it was
