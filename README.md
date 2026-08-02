@@ -7,9 +7,9 @@
 > hues, the mask compensation is measured rather than guessed, and the PAL delay
 > line is confirmed to hold hue to 0.0° under a decoder phase error that shifts
 > NTSC by up to 26° (see [Status](#status)). It **loads in Resolume Arena 7.27.0
-> and all six shader stages compile there**, but it has not yet been rendered
-> through the host onto real footage. Check it in your own rig before trusting it
-> in a show.
+> with all six shader stages compiling in the host, and has been run there on real
+> content** rather than only through the offline harness. Check it in your own rig
+> before trusting it in a show.
 
 An analogue television signal path for [Resolume](https://resolume.com) Arena and
 Avenue, as an FFGL effect.
@@ -231,12 +231,11 @@ Verified inside Resolume Arena 7.27.0 (macOS, Apple M4 Max, GL 4.1 Metal - 90.5)
 - **Arena registers it correctly**, reported by Arena's own REST API alongside its
   128 built-in effects: idstring `OC01`, name `Old Cathode`, category
   `Video Effects`, description intact.
+- **It has been run on real content in the host**, not only through the offline
+  harness.
 
 Not verified:
 
-- **Never rendered through the host onto footage.** Parameter groups, the option
-  dropdowns, and Arena's real texture sizes and premultiplication behaviour are
-  still unconfirmed — loading cleanly is not the same as looking right.
 - **Windows and the universal macOS build have never been run**, only built.
 
 ## Licence
