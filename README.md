@@ -14,6 +14,8 @@
 An analogue television signal path for [Resolume](https://resolume.com) Arena and
 Avenue, as an FFGL effect.
 
+**Video:** [What it does, in 45 seconds](https://www.youtube.com/watch?v=Dee384n2h5w)
+
 ![Broadcast NTSC on a shadow-mask tube](docs/broadcast.jpg)
 
 <sub>Broadcast NTSC, shadow mask. Dot crawl over the bars; the frequency sweep
