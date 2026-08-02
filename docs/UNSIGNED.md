@@ -1,4 +1,4 @@
-# Running unsigned Luma Key builds
+# Running unsigned Old Cathode builds
 
 Everything this project releases is built and published unsigned. This page explains
 what each operating system will say, exactly how to get past it, and how to sign the
@@ -27,11 +27,12 @@ for an app: your host doesn't prompt, it just **skips the plugin or fails valida
 usually with no useful error. Clear the flag after copying the bundle into place:
 
 ```sh
-xattr -dr com.apple.quarantine "/Library/Graphics/FreeFrame Plug-Ins/luma-key.bundle"
+xattr -dr com.apple.quarantine "$HOME/Documents/Resolume Arena/Extra Effects/OldCathode.bundle"
 ```
 
-Use `/Library/...` instead of `$HOME/Library/...` if you installed system-wide.
-Then **rescan plugins** in your host.
+Use `Resolume Avenue` in place of `Resolume Arena` for Avenue, or
+`/Library/Graphics/FreeFrame Plug-Ins/` if you installed system-wide. Then
+restart Resolume — it reads the plugin folder at startup.
 
 ### Apple Silicon and the `.zip` trap
 
@@ -71,14 +72,14 @@ An ad-hoc signature stops the OS re-prompting on **your own machine**. It is **n
 notarization and will do nothing for anyone else:
 
 ```sh
-codesign --force --deep --sign - "/Library/Graphics/FreeFrame Plug-Ins/luma-key.bundle"
+codesign --force --deep --sign - "$HOME/Documents/Resolume Arena/Extra Effects/OldCathode.bundle"
 ```
 
 Verify it took:
 
 ```sh
-codesign -dv --verbose=4 "/Library/Graphics/FreeFrame Plug-Ins/luma-key.bundle"
-spctl -a -vv "/Library/Graphics/FreeFrame Plug-Ins/luma-key.bundle"   # still reports "rejected" — ad-hoc is not notarization
+codesign -dv --verbose=4 "$HOME/Documents/Resolume Arena/Extra Effects/OldCathode.bundle"
+spctl -a -vv "$HOME/Documents/Resolume Arena/Extra Effects/OldCathode.bundle"   # still reports "rejected" — ad-hoc is not notarization
 ```
 
 ### macOS — real signing and notarization
