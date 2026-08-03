@@ -5,6 +5,7 @@
 #include <chrono>
 
 #include "PassBuffer.h"
+#include "StoatworksAboutParams.h"
 
 /**
     Old Cathode -- an analogue television signal path for Resolume.
@@ -36,6 +37,7 @@ public:
 	FFResult DeInitGL() override;
 
 	FFResult SetFloatParameter( unsigned int index, float value ) override;
+	char* GetTextParameter( unsigned int index ) override;
 	float GetFloatParameter( unsigned int index ) override;
 
 	FFResult SetTime( double time ) override;
@@ -88,7 +90,10 @@ private:
 		PT_ZOOM,
 		PT_VIGNETTE,
 
-		PT_COUNT
+		//About. FFGL has no window, so the name, the version and the links are
+		//parameters the host draws. See StoatworksAboutParams.h.
+		PT_ABOUT_FIRST,
+		PT_COUNT = PT_ABOUT_FIRST + stoatworks::about::kParamCount
 	};
 
 	bool compileShaders();
@@ -119,4 +124,8 @@ private:
 	std::chrono::steady_clock::time_point startTime;
 
 	float params[ PT_COUNT ];
+
+	/// GetTextParameter hands the host a bare pointer, so the string has to
+	/// outlive the call.
+	std::string aboutText;
 };

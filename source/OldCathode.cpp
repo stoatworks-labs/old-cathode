@@ -152,6 +152,15 @@ OldCathode::OldCathode() :
 	SetParamInfof( PT_ZOOM, "Zoom", FF_TYPE_STANDARD );
 	SetParamInfof( PT_VIGNETTE, "Vignette", FF_TYPE_STANDARD );
 
+	// The About block. Inline rather than through a helper: SetParamInfo is
+	// protected on CFFGLPlugin, so nothing outside the class can call it.
+	SetParamInfo( PT_ABOUT_FIRST, "About", FF_TYPE_TEXT, "" );
+	{
+		FFUInt32 aboutId = PT_ABOUT_FIRST + 1;
+		for( const auto& b : stoatworks::about::buttons() )
+			SetParamInfo( aboutId++, b.label, FF_TYPE_EVENT, false );
+	}
+
 	for( FFUInt32 i = PT_SYSTEM; i <= PT_INTERFERENCE; ++i )
 		SetParamGroup( i, "Signal" );
 	for( FFUInt32 i = PT_VERTICAL_HOLD; i <= PT_INTERLACE; ++i )
@@ -535,6 +544,11 @@ FFResult OldCathode::SetFloatParameter( unsigned int index, float value )
 	if( index >= PT_COUNT )
 		return FF_FAIL;
 
+	// An About button is a press, not a value to keep: it opens a browser and
+	// nothing about the effect changes.
+	if( index >= PT_ABOUT_FIRST )
+		return stoatworks::about::handleParam( index - PT_ABOUT_FIRST, value ) ? FF_SUCCESS : FF_FAIL;
+
 	params[ index ] = value;
 	return FF_SUCCESS;
 }
@@ -545,4 +559,17 @@ float OldCathode::GetFloatParameter( unsigned int index )
 		return 0.0f;
 
 	return params[ index ];
+}
+
+char* OldCathode::GetTextParameter( unsigned int index )
+{
+	// The host is handed a bare pointer, so the string is kept as a member
+	// rather than built on the stack here.
+	if( index == PT_ABOUT_FIRST )
+	{
+		aboutText = stoatworks::about::textParam( 0 );
+		return const_cast< char* >( aboutText.c_str() );
+	}
+
+	return CFFGLPlugin::GetTextParameter( index );
 }
