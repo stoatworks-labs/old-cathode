@@ -30,6 +30,7 @@
 #include "ofxsImageEffect.h"
 #include "ofxsProcessing.h"
 
+#include "../Presets.h"
 #include "../Standards.h"
 
 namespace
@@ -722,6 +723,7 @@ private:
 	}
 };
 
+constexpr const char* kParamPreset       = "preset";
 constexpr const char* kParamSystem       = "system";
 constexpr const char* kParamSource       = "signalSource";
 constexpr const char* kParamLumaBw       = "lumaBandwidth";
@@ -798,6 +800,90 @@ public:
 		perspectiveY = fetchDoubleParam( kParamPerspectiveY );
 		zoom         = fetchDoubleParam( kParamZoom );
 		vignette     = fetchDoubleParam( kParamVignette );
+
+		preset = fetchChoiceParam( kParamPreset );
+
+		// The covered params, in presets::Param order, with the OFX name each
+		// answers to in changedParam. One of the three pointers is set per row.
+		using namespace oldcathode::presets;
+		bind( kSystem, kParamSystem, systemP );
+		bind( kSource, kParamSource, sourceP );
+		bind( kLumaBandwidth, kParamLumaBw, lumaBw );
+		bind( kChromaBandwidth, kParamChromaBw, chromaBw );
+		bind( kSaturation, kParamSaturation, saturation );
+		bind( kTint, kParamTint, tint );
+		bind( kDotCrawl, kParamDotCrawl, dotCrawl );
+		bind( kGhosting, kParamGhosting, ghosting );
+		bind( kGhostDelay, kParamGhostDelay, ghostDelay );
+		bind( kNoise, kParamNoise, noise );
+		bind( kDropouts, kParamDropouts, dropouts );
+		bind( kInterference, kParamInterference, interference );
+		bind( kVerticalHold, kParamVerticalHold, verticalHold );
+		bind( kJitter, kParamJitter, jitter );
+		bind( kTracking, kParamTracking, tracking );
+		bind( kHeadSwitch, kParamHeadSwitch, headSwitch );
+		bind( kHum, kParamHum, hum );
+		bind( kInterlace, kParamInterlace, interlace );
+		bind( kMaskPattern, kParamMaskPattern, maskPattern );
+		bind( kMaskPitch, kParamMaskPitch, maskPitch );
+		bind( kMaskStrength, kParamMaskStrength, maskStrength );
+		bind( kScanlines, kParamScanlines, scanlines );
+		bind( kBeamBloom, kParamBeamBloom, beamBloom );
+		bind( kPersistence, kParamPersistence, persistence );
+		bind( kHalation, kParamHalation, halation );
+		bind( kBrightness, kParamBrightness, brightness );
+		bind( kContrast, kParamContrast, contrast );
+		bind( kCurvature, kParamCurvature, curvature );
+		bind( kCornerRadius, kParamCornerRadius, cornerRadius );
+		bind( kVignette, kParamVignette, vignette );
+	}
+
+	void changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName ) override
+	{
+		using namespace oldcathode::presets;
+
+		if( paramName == kParamPreset )
+		{
+			int chosen = 0;
+			preset->getValue( chosen );
+			if( chosen <= 0 || chosen > kCount || applyingPreset )
+				return;
+
+			// The copy IS the preset — same table as the FFGL build, same 0..1
+			// space. One edit block so undo takes the whole preset back at once.
+			const Preset& p = kPresets[ chosen - 1 ];
+			applyingPreset  = true;
+			beginEditBlock( "Preset" );
+			for( int j = 0; j < kParamCount; ++j )
+				if( differs( bindings[ j ], p.v[ j ] ) )
+					apply( bindings[ j ], p.v[ j ] );
+			endEditBlock();
+			applyingPreset = false;
+			return;
+		}
+
+		// Editing a covered control while a preset is active hands control back
+		// to the sliders. Judged by value, not by the change reason: hosts are
+		// not consistent about reasons, but "still equal to the preset" is
+		// unambiguous and also absorbs the host echoing our own setValues.
+		if( applyingPreset || args.reason == OFX::eChangeTime )
+			return;
+
+		int active = 0;
+		preset->getValue( active );
+		if( active <= 0 || active > kCount )
+			return;
+
+		const Preset& p = kPresets[ active - 1 ];
+		for( int j = 0; j < kParamCount; ++j )
+		{
+			if( paramName != bindings[ j ].name || !differs( bindings[ j ], p.v[ j ] ) )
+				continue;
+			applyingPreset = true;
+			preset->setValue( 0 );
+			applyingPreset = false;
+			break;
+		}
 	}
 
 	void render( const OFX::RenderArguments& args ) override
@@ -1222,6 +1308,60 @@ private:
 	OFX::DoubleParam* perspectiveY  = nullptr;
 	OFX::DoubleParam* zoom          = nullptr;
 	OFX::DoubleParam* vignette      = nullptr;
+
+	OFX::ChoiceParam* preset        = nullptr;
+
+	/// One covered param: its OFX name and whichever typed handle it has.
+	/// The preset table is plain floats; the type decides the reading — option
+	/// values are element indices, booleans are 0/1.
+	struct Binding
+	{
+		const char* name        = "";
+		OFX::DoubleParam* d     = nullptr;
+		OFX::BooleanParam* b    = nullptr;
+		OFX::ChoiceParam* c     = nullptr;
+	};
+	Binding bindings[ oldcathode::presets::kParamCount ];
+
+	void bind( int slot, const char* name, OFX::DoubleParam* p ) { bindings[ slot ] = { name, p, nullptr, nullptr }; }
+	void bind( int slot, const char* name, OFX::BooleanParam* p ) { bindings[ slot ] = { name, nullptr, p, nullptr }; }
+	void bind( int slot, const char* name, OFX::ChoiceParam* p ) { bindings[ slot ] = { name, nullptr, nullptr, p }; }
+
+	static bool differs( const Binding& binding, float v )
+	{
+		if( binding.d )
+		{
+			double current = 0.0;
+			binding.d->getValue( current );
+			return std::fabs( current - double( v ) ) > 1e-4;
+		}
+		if( binding.b )
+		{
+			bool current = false;
+			binding.b->getValue( current );
+			return current != ( v > 0.5f );
+		}
+		if( binding.c )
+		{
+			int current = 0;
+			binding.c->getValue( current );
+			return current != int( std::lround( v ) );
+		}
+		return false;
+	}
+	static void apply( const Binding& binding, float v )
+	{
+		if( binding.d )
+			binding.d->setValue( double( v ) );
+		else if( binding.b )
+			binding.b->setValue( v > 0.5f );
+		else if( binding.c )
+			binding.c->setValue( int( std::lround( v ) ) );
+	}
+
+	/// True while our own setValues are in flight, so the resulting
+	/// changedParam callbacks are not mistaken for the operator editing.
+	bool applyingPreset = false;
 };
 
 OFX::DoubleParamDescriptor* defineSlider( OFX::ImageEffectDescriptor& desc, OFX::PageParamDescriptor* page,
@@ -1280,6 +1420,21 @@ void OldCathodePluginFactory::describeInContext( OFX::ImageEffectDescriptor& des
 	dstClip->setSupportsTiles( false );
 
 	OFX::PageParamDescriptor* page = desc.definePageParam( "Controls" );
+
+	// Factory presets, from the same table the FFGL build reads (Presets.h).
+	// Custom is not a preset: it means the sliders are the truth.
+	OFX::ChoiceParamDescriptor* presetParam = desc.defineChoiceParam( kParamPreset );
+	presetParam->setLabels( "Preset", "Preset", "Preset" );
+	presetParam->setHint( "Named situations for the whole signal path. Picking one sets the "
+	                      "covered controls; editing any of them afterwards falls back to Custom." );
+	presetParam->appendOption( "Custom" );
+	for( int i = 0; i < oldcathode::presets::kCount; ++i )
+		presetParam->appendOption( oldcathode::presets::kPresets[ i ].name );
+	presetParam->setDefault( 0 );
+	presetParam->setIsPersistant( true );
+	presetParam->setEvaluateOnChange( false );//the copied values re-render; the label itself does not
+	presetParam->setAnimates( false );
+	page->addChild( *presetParam );
 
 	OFX::GroupParamDescriptor* signalGroup = desc.defineGroupParam( "Signal" );
 	signalGroup->setLabels( "Signal", "Signal", "Signal" );

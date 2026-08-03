@@ -5,6 +5,7 @@
 #include <chrono>
 
 #include "PassBuffer.h"
+#include "Presets.h"
 #include "StoatworksAboutParams.h"
 
 /**
@@ -90,11 +91,30 @@ private:
 		PT_ZOOM,
 		PT_VIGNETTE,
 
+		//Preset. Declared after the real controls so their IDs — which a saved
+		//composition refers to — do not shift under existing users.
+		PT_PRESET,
+
 		//About. FFGL has no window, so the name, the version and the links are
 		//parameters the host draws. See StoatworksAboutParams.h.
 		PT_ABOUT_FIRST,
 		PT_COUNT = PT_ABOUT_FIRST + stoatworks::about::kParamCount
 	};
+
+	/// The ParamID each presets::Param drives, in presets::Param order. The
+	/// preset table stays host-agnostic; this is the FFGL binding of it.
+	static constexpr unsigned int kPresetParamIDs[ oldcathode::presets::kParamCount ] = {
+		PT_SYSTEM, PT_SOURCE, PT_LUMA_BANDWIDTH, PT_CHROMA_BANDWIDTH, PT_SATURATION, PT_TINT,
+		PT_DOT_CRAWL, PT_GHOSTING, PT_GHOST_DELAY, PT_NOISE, PT_DROPOUTS, PT_INTERFERENCE,
+		PT_VERTICAL_HOLD, PT_JITTER, PT_TRACKING, PT_HEAD_SWITCH, PT_HUM, PT_INTERLACE,
+		PT_MASK_PATTERN, PT_MASK_PITCH, PT_MASK_STRENGTH, PT_SCANLINES, PT_BEAM_BLOOM,
+		PT_PERSISTENCE, PT_HALATION, PT_BRIGHTNESS, PT_CONTRAST, PT_CURVATURE,
+		PT_CORNER_RADIUS, PT_VIGNETTE
+	};
+
+	/// Copy a factory preset's values into params[] and raise value events so
+	/// the host re-reads the sliders. `presetIndex` is 1-based; 0 is Custom.
+	void applyPreset( int presetIndex );
 
 	bool compileShaders();
 	void releaseBuffers();
