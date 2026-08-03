@@ -166,6 +166,28 @@ Every image in this guide was made that way.
 
 ---
 
+## Audio reactivity
+
+Every slider here is a plain float, which means Resolume can drive any of them from its own
+audio analysis: click the dropdown beside a parameter, choose **FFT**, and pick a frequency
+band and gain. No plugin setting is involved — this is the host animating the control for you.
+
+The ones that repay it are the *signal-path degradations*, because a transmission that gets
+worse when the music gets loud reads as the broadcast struggling rather than as an effect:
+
+- **Interference** or **Noise** on the low band — the picture breaks up on the kick.
+- **Jitter** or **Vertical Hold** on a tight bass band, with the gain low: the frame trembles
+  on hits, and at higher gain it loses lock entirely.
+- **Ghosting** on overall level, for a signal that smears as the mix fills up.
+
+Drive one or two, not five. Each of these is a *cause* in the signal path, and the picture is
+most convincing when only one thing is going wrong at a time.
+
+BPM animation works the same way from the same dropdown — a **Dropouts** ramp that resets each
+bar gives a tape that stumbles on the downbeat.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Cause |
