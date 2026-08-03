@@ -78,15 +78,16 @@ harness in this repository.
 
 ## Download
 
-**[v0.1.1](https://github.com/stoatworks-labs/old-cathode/releases/tag/v0.1.1)** — prebuilt for macOS and Windows. Pick your platform:
+**[v0.2.0](https://github.com/stoatworks-labs/old-cathode/releases/tag/v0.2.0)** — prebuilt for macOS and Windows. Pick your platform:
 
 <details>
 <summary><b>macOS</b> — Universal (Apple Silicon + Intel)</summary>
 
 | Build | Download | Size |
 | --- | --- | --- |
-| Universal (Apple Silicon + Intel) · .dmg disk image | [`old-cathode-0.1.1-macos-universal.dmg`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.1/old-cathode-0.1.1-macos-universal.dmg) | 202 KB |
-| Universal (Apple Silicon + Intel) · .zip archive | [`old-cathode-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-macos-universal.zip) | 157 KB |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`old-cathode-0.2.0-macos-universal.dmg`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.2.0/old-cathode-0.2.0-macos-universal.dmg) | 205 KB |
+| Universal (Apple Silicon + Intel) · .zip archive | [`old-cathode-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-macos-universal.zip) | 159 KB |
+| Universal (Apple Silicon + Intel) · .zip archive (OpenFX — Resolve, Vegas, Nuke) | [`old-cathode-ofx-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-ofx-macos-universal.zip) | 265 KB |
 
 </details>
 
@@ -95,8 +96,9 @@ harness in this repository.
 
 | Build | Download | Size |
 | --- | --- | --- |
-| x64 · .exe installer | [`old-cathode-0.1.1-windows-x86_64-setup.exe`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.1.1/old-cathode-0.1.1-windows-x86_64-setup.exe) | 218 KB |
-| x64 · .zip archive | [`old-cathode-windows-x86_64.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-windows-x86_64.zip) | 109 KB |
+| x64 · .exe installer | [`old-cathode-0.2.0-windows-x86_64-setup.exe`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.2.0/old-cathode-0.2.0-windows-x86_64-setup.exe) | 220 KB |
+| x64 · .zip archive | [`old-cathode-windows-x86_64.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-windows-x86_64.zip) | 111 KB |
+| x64 · .zip archive (OpenFX — Resolve, Vegas, Nuke) | [`old-cathode-ofx-windows-x86_64.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-ofx-windows-x86_64.zip) | 74 KB |
 
 </details>
 
