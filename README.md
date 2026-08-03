@@ -104,6 +104,24 @@ All builds, checksums and release notes: [github.com/stoatworks-labs/old-cathode
 
 <!-- downloads:end -->
 
+## OpenFX — Resolve, Vegas, Nuke, Natron
+
+The same signal path also builds as an OpenFX plugin, so it runs in DaVinci
+Resolve (Edit and Color pages, and Fusion), Vegas Pro, Nuke and Natron. The
+standards table is the same code; the five GPU stages are mirrored on the CPU,
+constant for constant, and the subcarrier's frame-to-frame phase walk comes
+from the timeline frame number — so any frame renders identically however the
+host reaches it, and the dot crawl still crawls.
+
+Grab the `old-cathode-ofx-*` zip for your platform from the release and copy
+`OldCathode.ofx.bundle` into the standard OpenFX folder, then restart the host:
+
+```
+macOS    /Library/OFX/Plugins/
+Windows  C:\Program Files\Common Files\OFX\Plugins\
+```
+
+
 ## Controls
 
 Grouped in the inspector as **Signal**, **Sync**, **Tube** and **Geometry** —

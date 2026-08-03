@@ -14,6 +14,18 @@ Read `AGENTS.md` before changing the signal maths.
 - Render a frame offline: `./build/octest --out /tmp/frame.png`
 - List parameters: `./build/octest --list`
 
+## OpenFX build
+- `source/ofx/OldCathodeOFX.cpp` → `build/OldCathode.ofx.bundle` (target
+  `OldCathodeOFX`, `-DBUILD_OFX=OFF` to skip) for Resolve/Vegas/Nuke/Natron.
+  Standards.cpp links straight from source; the five GPU stages are mirrored
+  on the CPU. Change a stage's GLSL, change the matching function there.
+- FrameIndex is the timeline frame (OFX time), so the subcarrier's phase walk
+  is deterministic against the edit. Persistence is reconstructed from up to
+  12 previous frames via OFX temporal clip access.
+- Smoke test: `../resolume-ofx-bridge/build/ofxprobe --dir build --render com.stoatworks.oldcathode --size 640x360 --out /tmp/oc.bmp`
+- OFX SDK subset (BSD-3) vendored under `external/openfx`.
+- Install for Resolve: copy the bundle into `/Library/OFX/Plugins`.
+
 ## Notes
 - Six shader stages; the effect is the GLSL, the C++ is host glue and the
   standards table.

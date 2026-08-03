@@ -71,6 +71,19 @@ jobs:
           else
             cp "build/Release/OldCathode.dll" "out/OldCathode.dll"
           fi
+          # OpenFX build: shipped as its own zip, not folded into the FFGL
+          # artefact — it installs to the OFX folder, not Resolume's.
+          mkdir -p ofxout
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            cp -R "build/OldCathode.ofx.bundle" "ofxout/OldCathode.ofx.bundle"
+            lipo -archs "ofxout/OldCathode.ofx.bundle/Contents/MacOS/OldCathode.ofx"
+            nm -gU "ofxout/OldCathode.ofx.bundle/Contents/MacOS/OldCathode.ofx" | grep "_OfxGetPlugin" >/dev/null
+            codesign --force --sign - --timestamp=none "ofxout/OldCathode.ofx.bundle"
+          else
+            mkdir -p "ofxout/OldCathode.ofx.bundle/Contents/Win64"
+            cp "build/OldCathode.ofx.bundle/Contents/Win64/OldCathode.ofx" "ofxout/OldCathode.ofx.bundle/Contents/Win64/OldCathode.ofx"
+          fi
+          ls -R ofxout
           ls -R out
 
       - name: Archive (zip)
@@ -81,6 +94,12 @@ jobs:
             7z a "../old-cathode-${{ matrix.name }}.zip" ./*
           else
             zip -r "../old-cathode-${{ matrix.name }}.zip" ./*
+          fi
+          cd ../ofxout
+          if command -v 7z >/dev/null 2>&1; then
+            7z a "../old-cathode-ofx-${{ matrix.name }}.zip" ./*
+          else
+            zip -r "../old-cathode-ofx-${{ matrix.name }}.zip" ./*
           fi
 
       - name: Disk image (macOS)

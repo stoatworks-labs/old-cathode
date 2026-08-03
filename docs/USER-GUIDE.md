@@ -136,6 +136,21 @@ Avenue uses the same layout under its own folder name. It appears as **Old Catho
 **Needs Resolume Arena or Avenue 7.3.1 or newer.** The builds are unsigned — see
 [UNSIGNED.md](UNSIGNED.md) for getting them past Gatekeeper and SmartScreen.
 
+### OpenFX hosts (Resolve, Vegas, Nuke, Natron)
+
+Old Cathode also ships as an OpenFX plugin — same signal path, same controls.
+Copy `OldCathode.ofx.bundle` from the `-ofx-` download into the OpenFX folder
+and restart the host:
+
+```
+macOS    /Library/OFX/Plugins/
+Windows  C:\Program Files\Common Files\OFX\Plugins\
+```
+
+One difference worth knowing: Persistence is rebuilt from previous frames each
+render, so very high settings cost render time and truncate the longest trails
+slightly compared with the Resolume build.
+
 ---
 
 ## Looking at it without Resolume
