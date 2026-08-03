@@ -59,6 +59,23 @@ PAL decoder averages each line with the one above it and a phase error cancels.
 
 <!-- downloads:start -->
 
+## Try it in your browser
+
+**<https://old-cathode-demo.stoatworks-labs.com>**
+
+Not the plugin — the GLSL from `source/shaders/`, copied across unedited and run in
+WebGL2 over clips generated in the page, with the parameters this plugin's
+constructor declares and the conversions its own code applies. No install, and
+nothing you load leaves your machine.
+
+All six stages run, at the standard's own raster, in 16-bit float. Put the fine-detail clip up and turn Dot Crawl down to watch the notch trade the subcarrier for the detail above 3MHz — the same trade the real sets made.
+
+It is a port, so it is not evidence about the plugin: a browser is not Resolume,
+GLSL ES 3.00 is not desktop GL 4.1 core, and nothing on that page measures
+anything. The page says all of that itself, in a disclosure at the foot. The
+numbers worth trusting are in [Status](#status) and come from the offline
+harness in this repository.
+
 ## Download
 
 **[v0.1.1](https://github.com/stoatworks-labs/old-cathode/releases/tag/v0.1.1)** — prebuilt for macOS and Windows. Pick your platform:
