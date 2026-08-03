@@ -624,6 +624,19 @@ float OldCathode::GetFloatParameter( unsigned int index )
 	return params[ index ];
 }
 
+FFResult OldCathode::SetTextParameter( unsigned int index, const char* )
+{
+	// The About text is generated on read and never stored — but a set of it
+	// must SUCCEED. The SDK's instantiateGL pushes every parameter's default
+	// into a fresh instance and destroys it on the first FF_FAIL, and the
+	// base SetTextParameter returns FF_FAIL — so without this the plugin
+	// fails FF_INSTANTIATE_GL in the host, with no message anywhere.
+	if( index == PT_ABOUT_FIRST )
+		return FF_SUCCESS;
+
+	return CFFGLPlugin::SetTextParameter( index, nullptr );
+}
+
 char* OldCathode::GetTextParameter( unsigned int index )
 {
 	// The host is handed a bare pointer, so the string is kept as a member

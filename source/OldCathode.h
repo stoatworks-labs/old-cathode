@@ -38,6 +38,7 @@ public:
 	FFResult DeInitGL() override;
 
 	FFResult SetFloatParameter( unsigned int index, float value ) override;
+	FFResult SetTextParameter( unsigned int index, const char* value ) override;
 	char* GetTextParameter( unsigned int index ) override;
 	float GetFloatParameter( unsigned int index ) override;
 
