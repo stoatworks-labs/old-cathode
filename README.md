@@ -57,8 +57,6 @@ because chrominance sits at the top of the band and goes under the noise floor
 first. Setting the system to PAL changes what the Tint control does, because a
 PAL decoder averages each line with the one above it and a phase error cancels.
 
-<!-- downloads:start -->
-
 ## Try it in your browser
 
 **<https://old-cathode-demo.stoatworks-labs.com>**
@@ -75,6 +73,8 @@ GLSL ES 3.00 is not desktop GL 4.1 core, and nothing on that page measures
 anything. The page says all of that itself, in a disclosure at the foot. The
 numbers worth trusting are in [Status](#status) and come from the offline
 harness in this repository.
+
+<!-- downloads:start -->
 
 ## Download
 
