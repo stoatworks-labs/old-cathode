@@ -104,6 +104,8 @@ harness in this repository.
 
 All builds, checksums and release notes: [github.com/stoatworks-labs/old-cathode/releases](https://github.com/stoatworks-labs/old-cathode/releases).
 
+The Windows builds are unsigned, so SmartScreen warns once.
+
 <!-- downloads:end -->
 
 ## OpenFX — Resolve, Vegas, Nuke, Natron
