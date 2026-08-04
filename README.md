@@ -277,6 +277,10 @@ Not verified:
 
 - **Windows and the universal macOS build have never been run**, only built.
 
+<!-- attributions:start -->
+This project is built on other people's work — see [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+<!-- attributions:end -->
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE).
