@@ -85,9 +85,9 @@ harness in this repository.
 
 | Build | Download | Size |
 | --- | --- | --- |
-| Universal (Apple Silicon + Intel) · .dmg disk image | [`old-cathode-0.2.0-macos-universal.dmg`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.2.0/old-cathode-0.2.0-macos-universal.dmg) | 205 KB |
-| Universal (Apple Silicon + Intel) · .zip archive | [`old-cathode-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-macos-universal.zip) | 159 KB |
-| Universal (Apple Silicon + Intel) · .zip archive (OpenFX — Resolve, Vegas, Nuke) | [`old-cathode-ofx-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-ofx-macos-universal.zip) | 265 KB |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`old-cathode-0.2.0-macos-universal.dmg`](https://github.com/stoatworks-labs/old-cathode/releases/download/v0.2.0/old-cathode-0.2.0-macos-universal.dmg) | 430 KB |
+| Universal (Apple Silicon + Intel) · .zip archive | [`old-cathode-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-macos-universal.zip) | 175 KB |
+| Universal (Apple Silicon + Intel) · .zip archive (OpenFX — Resolve, Vegas, Nuke) | [`old-cathode-ofx-macos-universal.zip`](https://github.com/stoatworks-labs/old-cathode/releases/latest/download/old-cathode-ofx-macos-universal.zip) | 279 KB |
 
 </details>
 
