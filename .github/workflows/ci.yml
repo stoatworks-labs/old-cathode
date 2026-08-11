@@ -1,0 +1,55 @@
+name: ci
+
+# Until this existed the repo had no workflow with a `pull_request` trigger at
+# all — only a tag-driven release — so Dependabot bumps arrived with no status
+# check to gate a merge on and simply accumulated.
+#
+# macOS only, and deliberately. The CMakeLists branches on APPLE and WIN32 and
+# has no Linux path at all, so ubuntu is not an option; Windows needs GLEW from
+# vcpkg, which is a slow, fragile thing to put in front of every pull request
+# for a compile break that would almost certainly show up on macOS too. The
+# release workflow still builds both.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The FFGL SDK is a submodule. Without this CMake fails at configure
+          # time with a missing-directory error that reads like a broken repo.
+          submodules: recursive
+
+      - name: Configure
+        # arm64 only, unlike the release build's universal arm64;x86_64 — the
+        # second slice doubles the build for no extra signal, because a source
+        # break is not architecture-specific. Passed as a single value with no
+        # semicolon, which the shell would split.
+        #
+        # OLDCATHODE_BUILD_TOOLS is ON here where the release build turns it OFF:
+        # octest is a large slice of the C++ and the only place the plugin's
+        # maths is written down twice, so compiling it is most of the value.
+        run: >
+          cmake -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES=arm64
+          -DOLDCATHODE_BUILD_TOOLS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      # Uploading is not only for the artefact. This repo has no package
+      # manifest, so github-actions is its only Dependabot ecosystem — and a
+      # bump to actions/upload-artifact otherwise touches release.yml alone,
+      # a workflow no pull request ever runs. Using it here means the check
+      # actually exercises the action being bumped.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: old-cathode-macos-arm64
+          path: build/*.bundle
+          if-no-files-found: error
