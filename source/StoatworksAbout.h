@@ -20,7 +20,7 @@ namespace stoatworks::about
     inline constexpr auto guide = "https://stoatworks-labs.com/software/old-cathode/guide/";
     inline constexpr auto page = "https://stoatworks-labs.com/software/old-cathode/";
     inline constexpr auto repo = "https://github.com/stoatworks-labs/old-cathode";
-    inline constexpr auto versionFallback = "v1.0.0";
+    inline constexpr auto versionFallback = "v1.0.2";
 
     inline constexpr auto org = "Stoatworks Labs";
     inline constexpr auto home = "https://stoatworks-labs.com";
