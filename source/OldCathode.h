@@ -39,6 +39,17 @@ public:
 
 	FFResult SetFloatParameter( unsigned int index, float value ) override;
 	char* GetTextParameter( unsigned int index ) override;
+
+	/// Load-bearing, and its absence is invisible offline.
+	///
+	/// instantiateGL pushes the declared default of every FF_TYPE_TEXT and
+	/// FF_TYPE_FILE parameter back through this on a fresh instance, and
+	/// deletes the instance the moment one returns FF_FAIL -- which is exactly
+	/// what CFFGLPlugin's stub does. Declaring the About line without this
+	/// override therefore made the plugin impossible to create in any real
+	/// host, while every harness in this repo, which drives the class
+	/// directly, carried on passing.
+	FFResult SetTextParameter( unsigned int index, const char* value ) override;
 	float GetFloatParameter( unsigned int index ) override;
 
 	FFResult SetTime( double time ) override;
@@ -122,7 +133,18 @@ private:
 	/// Seconds to drive the drifting impairments with. The host's timeline when
 	/// there is one, so a re-render is reproducible; the wall clock when there is
 	/// not, so the picture is not frozen in a host that never calls SetTime.
-	float elapsedSeconds() const;
+	float elapsedSeconds();
+
+public:
+	/// Clock test hooks. The harness DECLARES its unit rather than leaving
+	/// elapsedSeconds to infer one -- an absolute time in a single frame is
+	/// genuinely ambiguous, and an implicit unit is what let a thousand-times-
+	/// fast bug sit here unnoticed.
+	void SetClockScaleForTest( double scale );
+	double ClockScaleForTest() const;
+
+private:
+
 
 	ffglex::FFGLShader resampleShader;
 	ffglex::FFGLShader signalShader;
@@ -140,10 +162,19 @@ private:
 	int phosphorIndex = 0;  //!< Which half of the ping-pong this frame writes to.
 	float frameIndex = 0.0f;//!< Drives the subcarrier's frame-to-frame phase walk.
 
+	double clockScale   = 0.0;///< 0 until decided; then 1.0 or 0.001
+	double lastRawTime  = -1.0;
+	double lastWallTime = -1.0;
+	int secondsVotes    = 0;
+	int millisVotes     = 0;
 	bool hostTimeSeen = false;
 	std::chrono::steady_clock::time_point startTime;
 
-	float params[ PT_COUNT ];
+	/// Zero-initialised: the constructor writes a default for every real
+	/// control, but the About block's ids are never stored to -- pressing a
+	/// button opens a browser and returns -- so without this GetFloatParameter
+	/// hands the host whatever was on the stack for them.
+	float params[ PT_COUNT ] = {};
 
 	/// GetTextParameter hands the host a bare pointer, so the string has to
 	/// outlive the call.

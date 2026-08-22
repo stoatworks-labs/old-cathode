@@ -3,8 +3,9 @@
  *
  * This file is the MASTER, in stoatworks-backend/about/ffgl. It is vendored
  * into each FFGL repo by ../../scripts/sync-about.py - edit it THERE and re-run
- * the sync, never the copies. The facts come from StoatworksAbout.h beside it,
- * which is generated from the website's projects.json.
+ * the sync, never the copies. The links and the credit line come from
+ * StoatworksAboutLinks.h beside it, which is shared with the OpenFX surface;
+ * the facts come from StoatworksAbout.h, generated from projects.json.
  *
  * ------------------------------------------------------ why this is not a window
  *
@@ -15,13 +16,21 @@
  *
  * What it does have is a text parameter, which the host shows as a labelled
  * value, and an event parameter, which the host shows as a button. That is
- * enough for the same six facts: the name and version go in the text, and the
- * guide, the project page, the source and the funding page each get a button
- * that opens the browser. Anything more ambitious would mean drawing our own UI
- * into the plugin's output texture, which would be putting a dialog on the
- * programme feed.
+ * enough for the same six facts: the name, the version, the licence and the
+ * maker go in the text, and the guide, the project page, the source and the
+ * funding page each get a button that opens the browser. Anything more
+ * ambitious would mean drawing our own UI into the plugin's output texture,
+ * which would be putting a dialog on the programme feed.
+ *
+ * The OpenFX build of the same effect has a read-only label and a real push
+ * button, so it gets those instead - see StoatworksAboutOFX.h. The two surfaces
+ * differ on purpose; only the links and the credit line are shared.
  *
  * ------------------------------------------------------------------ using it
+ *
+ * INCLUDE IT AFTER <FFGLSDK.h>. This header names FFUInt32 and does not pull
+ * the SDK in itself, so an include placed above the SDK's fails with four
+ * "unknown type name" errors that point here rather than at the include order.
  *
  * Extend the plugin's ParamID enum with the block, in the constructor declare
  * them, and forward the two callbacks:
@@ -35,7 +44,8 @@
  *     // constructor, after the plugin's own SetParamInfof calls. Inline
  *     // rather than a helper: SetParamInfo is protected on CFFGLPlugin, so
  *     // nothing outside the class can call it.
- *     SetParamInfo( PT_ABOUT_FIRST, "About", FF_TYPE_TEXT, "" );
+ *     SetParamInfo( PT_ABOUT_FIRST, "About", FF_TYPE_TEXT,
+ *                   stoatworks::about::defaultText() );
  *     FFUInt32 aboutId = PT_ABOUT_FIRST + 1;
  *     for( const auto& b : stoatworks::about::buttons() )
  *         SetParamInfo( aboutId++, b.label, FF_TYPE_EVENT, false );
@@ -45,113 +55,63 @@
  *         return stoatworks::about::handleParam( index - PT_ABOUT_FIRST, value )
  *                    ? FF_SUCCESS : FF_FAIL;
  *
- *     // GetTextParameter - the returned buffer must outlive the call, so the
- *     // plugin keeps the string as a member.
+ *     // GetTextParameter - the returned buffer must outlive the call.
  *     if( index == PT_ABOUT_FIRST )
  *     {
- *         aboutText = stoatworks::about::textParam( 0 );
- *         return const_cast< char* >( aboutText.c_str() );
+ *         static const std::string line = stoatworks::about::textParam( 0 );
+ *         return const_cast< char* >( line.c_str() );
  *     }
  *
- * ------------------------------------------------------------------- ASCII
+ *     // SetTextParameter - LOAD-BEARING, and its absence is invisible offline.
+ *     // instantiateGL pushes every declared default back through the setters
+ *     // and deletes the instance the moment one returns FF_FAIL, which is
+ *     // exactly what CFFGLPlugin's stub does. Omit this and the plugin cannot
+ *     // be created in any real host, while every in-repo harness still passes.
+ *     if( index == PT_ABOUT_FIRST )
+ *         return FF_SUCCESS;
  *
- * Every string here is ASCII, matching the generated header. MSVC warns on a
- * UTF-8 source without /utf-8, and these build on all three platforms.
+ * Zero-initialise the plugin's `params[]` array. The About ids are never
+ * stored to, so without it GetFloatParameter hands the host whatever was on
+ * the stack for them.
  */
 
 #pragma once
 
-#include <array>
-#include <cstddef>
-#include <cstdlib>
-#include <string>
-
-#include "StoatworksAbout.h"
+#include "StoatworksAboutLinks.h"
 
 namespace stoatworks::about
 {
 
-/*
- * The buttons, in the order the host shows them. A link the product does not
- * have - a guide that is not written, a repo that is still private - is left
- * out of the list rather than shown as a button that opens a 404.
- *
- * All of it is constexpr because a parameter id has to be: the host is told how
- * many parameters a plugin has before any of this could run, and the plugin's
- * own enum has to name the block's size.
- */
-struct Button
-{
-	const char* label;
-	const char* url;
-};
-
-inline constexpr bool present( const char* s )
-{
-	return s != nullptr && s[ 0 ] != '\0';
-}
+/// The text line, then one button each. Use this to size the plugin's enum.
+inline constexpr unsigned kParamCount = 1u + kButtonCount;
 
 /**
-	One funding button rather than four.
+	The credit line as a stable `const char*`, for the parameter's DECLARED
+	DEFAULT.
 
-	The host draws these in the effect's parameter list, beside the controls
-	somebody is using mid-show, and four donation buttons in there would be
-	shouting. It goes to the website's support page, which lists all four.
+	Declare it as the default as well as answering `GetTextParameter` with it.
+	Nothing in FFGL says which of the two a host reads, and they do differ --
+	oxbow's host reads only the prototype's default and never asks the instance
+	-- so a plugin that supplies one and not the other shows a blank About line
+	in whichever host happened to pick the other. Supplying both costs a string.
+
+	Function-local static because `SetParamInfo` keeps the pointer: a temporary
+	`std::string`'s buffer is gone before the host reads it.
 */
-inline constexpr const char* kSupportUrl = "https://stoatworks-labs.com/support";
-
-inline constexpr FFUInt32 kButtonCount =
-	( present( guide ) ? 1u : 0u ) + ( present( page ) ? 1u : 0u ) + ( present( repo ) ? 1u : 0u ) + 1u;
-
-/// The text line, then one button each. Use this to size the plugin's enum.
-inline constexpr FFUInt32 kParamCount = 1u + kButtonCount;
-
-inline const std::array< Button, kButtonCount >& buttons()
+inline const char* defaultText()
 {
-	static const std::array< Button, kButtonCount > list = [] {
-		std::array< Button, kButtonCount > out{};
-		std::size_t i = 0;
-		if constexpr( present( guide ) )
-			out[ i++ ] = { "User guide", guide };
-		if constexpr( present( page ) )
-			out[ i++ ] = { "Project page", page };
-		if constexpr( present( repo ) )
-			out[ i++ ] = { "Source on GitHub", repo };
-		out[ i++ ] = { "Support the work", kSupportUrl };
-		return out;
-	}();
-	return list;
+	static const std::string line = creditLine();
+	return line.c_str();
 }
 
-/// Open a URL in the user's browser.
-///
-/// A plugin shelling out is not pretty, but a plugin has no host API for this
-/// and the alternative is a URL the user has to copy off the screen by hand.
-/// The URLs are compile-time constants from the generated header, never
-/// anything a project file or a host could supply, so there is nothing here for
-/// a crafted string to reach.
-inline void openUrl( const char* url )
-{
-#if defined( _WIN32 )
-	std::string command = std::string( "start \"\" \"" ) + url + "\"";
-#elif defined( __APPLE__ )
-	std::string command = std::string( "open \"" ) + url + "\"";
-#else
-	std::string command = std::string( "xdg-open \"" ) + url + "\" &";
-#endif
-	std::system( command.c_str() );
-}
-
-/// The text line: what this is and what version of it is loaded.
+/// The text line: the credit, unchanged. Kept as a function taking an offset
+/// because that is the shape the plugins call it with.
 inline std::string textParam( FFUInt32 offset )
 {
 	if( offset != 0 )
 		return {};
 
-	std::string out = std::string( name ) + " " + versionFallback;
-	if( std::string( licence ).size() )
-		out += " - " + std::string( licence );
-	return out;
+	return creditLine();
 }
 
 /**

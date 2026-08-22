@@ -30,6 +30,9 @@
 #include "ofxsImageEffect.h"
 #include "ofxsProcessing.h"
 
+// After the OFX Support headers, which is where the OFX types come from.
+#include "StoatworksAboutOFX.h"
+
 #include "../Presets.h"
 #include "../Standards.h"
 
@@ -840,6 +843,10 @@ public:
 
 	void changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName ) override
 	{
+		// The About links open a browser and change nothing about the render.
+		if( stoatworks::about::ofx::changedParam( args, paramName ) )
+			return;
+
 		using namespace oldcathode::presets;
 
 		if( paramName == kParamPreset )
@@ -1518,6 +1525,11 @@ void OldCathodePluginFactory::describeInContext( OFX::ImageEffectDescriptor& des
 	defineSlider( desc, page, kParamPerspectiveY, "Perspective Y", "0.5 is straight on.", 0.5 )->setParent( *geometryGroup );
 	defineSlider( desc, page, kParamZoom, "Zoom", "0.5 is 1:1.", 0.5 )->setParent( *geometryGroup );
 	defineSlider( desc, page, kParamVignette, "Vignette", "", 0.35 )->setParent( *geometryGroup );
+
+	// The Stoatworks About block: a read-only credit line and one push button
+	// per link, in a group that starts folded. Last, so it sits under the
+	// effect's own controls.
+	stoatworks::about::ofx::describe( desc, page );
 }
 
 OFX::ImageEffect* OldCathodePluginFactory::createInstance( OfxImageEffectHandle handle, OFX::ContextEnum )

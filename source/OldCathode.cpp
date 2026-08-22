@@ -165,7 +165,7 @@ OldCathode::OldCathode() :
 
 	// The About block. Inline rather than through a helper: SetParamInfo is
 	// protected on CFFGLPlugin, so nothing outside the class can call it.
-	SetParamInfo( PT_ABOUT_FIRST, "About", FF_TYPE_TEXT, "" );
+	SetParamInfo( PT_ABOUT_FIRST, "About", FF_TYPE_TEXT, stoatworks::about::defaultText() );
 	{
 		FFUInt32 aboutId = PT_ABOUT_FIRST + 1;
 		for( const auto& b : stoatworks::about::buttons() )
@@ -188,19 +188,82 @@ OldCathode::OldCathode() :
 	diag::init();
 }
 
+/// Frames that must agree before the host's clock unit is settled.
+static constexpr int kClockVotes = 4;
+
 FFResult OldCathode::SetTime( double time )
 {
 	hostTimeSeen = true;
 	return CFFGLPlugin::SetTime( time );
 }
 
-float OldCathode::elapsedSeconds() const
+float OldCathode::elapsedSeconds()
 {
-	if( hostTimeSeen )
-		return static_cast< float >( hostTime );
+	// FFGL never says what unit SetTime arrives in, and hosts disagree:
+	// Resolume sends MILLISECONDS (its own SDK's Particles sample divides by
+	// 1000), while this repo's harness sends seconds. Returning `hostTime`
+	// unscaled -- which is what this did -- runs everything downstream a
+	// thousand times fast in Resolume and exactly right in the harness, which
+	// is precisely why it went unnoticed.
+	//
+	// So measure rather than assume: steady_clock says how much real time
+	// passed, the host says how much host time passed, and the ratio names the
+	// unit outright. ~1 is a seconds host, ~1000 a milliseconds one, and
+	// nothing plausible sits between, so both bands are wide and a frame that
+	// fits neither simply does not vote.
+	const double wallNow =
+	    std::chrono::duration< double >( std::chrono::steady_clock::now() - startTime ).count();
 
-	const auto now = std::chrono::steady_clock::now();
-	return std::chrono::duration< float >( now - startTime ).count();
+	// No host clock at all. The wall clock is already in seconds, so the unit
+	// question does not arise and no scale must be applied to it.
+	if( !hostTimeSeen )
+		return static_cast< float >( wallNow );
+
+	const double raw = hostTime;
+
+	if( clockScale == 0.0 && lastRawTime >= 0.0 && lastWallTime >= 0.0 )
+	{
+		const double hostDelta = raw - lastRawTime;
+		const double wallDelta = wallNow - lastWallTime;
+
+		// A paused host, a looping clip or a stalled frame tells us nothing.
+		if( hostDelta > 0.0 && wallDelta >= 0.0005 )
+		{
+			const double ratio = hostDelta / wallDelta;
+			if( ratio > 0.1 && ratio < 10.0 )
+				++secondsVotes;
+			else if( ratio > 100.0 && ratio < 10000.0 )
+				++millisVotes;
+
+			// Several frames rather than one, so a single odd frame -- the
+			// first after a seek, say -- cannot decide it on its own.
+			if( secondsVotes >= kClockVotes || millisVotes >= kClockVotes )
+			{
+				clockScale = millisVotes > secondsVotes ? 0.001 : 1.0;
+				diag::info( std::string( "host clock is " )
+				            + ( clockScale == 0.001 ? "milliseconds" : "seconds" )
+				            + ", scale=" + std::to_string( clockScale ) );
+			}
+		}
+	}
+
+	lastRawTime  = raw;
+	lastWallTime = wallNow;
+
+	// Until the unit is settled, run on the real clock rather than assume one:
+	// wrong in origin but right in rate, where assuming seconds would be a
+	// thousand times fast on Resolume.
+	return static_cast< float >( clockScale != 0.0 ? raw * clockScale : wallNow );
+}
+
+void OldCathode::SetClockScaleForTest( double scale )
+{
+	clockScale = scale;
+}
+
+double OldCathode::ClockScaleForTest() const
+{
+	return clockScale;
 }
 
 bool OldCathode::compileShaders()
@@ -622,6 +685,16 @@ float OldCathode::GetFloatParameter( unsigned int index )
 		return 0.0f;
 
 	return params[ index ];
+}
+
+FFResult OldCathode::SetTextParameter( unsigned int index, const char* value )
+{
+	// See the declaration: display-only, but it must still succeed or no host
+	// can instantiate the plugin at all.
+	if( index == PT_ABOUT_FIRST )
+		return FF_SUCCESS;
+
+	return CFFGLPlugin::SetTextParameter( index, value );
 }
 
 char* OldCathode::GetTextParameter( unsigned int index )

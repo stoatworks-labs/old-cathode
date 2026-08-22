@@ -580,6 +580,7 @@ int main( int argc, char** argv )
 				plugin.SetFloatParameter( static_cast< unsigned int >( indexOfParameter( entry.first ) ),
 				                          valueAt( entry.second, static_cast< int >( frame ) ) );
 
+			plugin.SetClockScaleForTest( 1.0 );//seconds, said out loud rather than inferred
 			plugin.SetTime( static_cast< double >( frame ) / fps );
 			glBindFramebuffer( GL_FRAMEBUFFER, outputFBO );
 			glViewport( 0, 0, width, height );
@@ -620,6 +621,7 @@ int main( int argc, char** argv )
 	//the harness produce identical pixels.
 	for( int frame = 0; frame < frames; ++frame )
 	{
+		plugin.SetClockScaleForTest( 1.0 );//seconds, said out loud rather than inferred
 		plugin.SetTime( static_cast< double >( frame ) / 60.0 );
 		glBindFramebuffer( GL_FRAMEBUFFER, outputFBO );
 		glViewport( 0, 0, width, height );
