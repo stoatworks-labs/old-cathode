@@ -72,6 +72,11 @@ def diff(a, b):
 names = subprocess.run(["./build/octest", "--list"], capture_output=True, text=True).stdout
 params = [' '.join(l.split()[1:-1]) for l in names.strip().splitlines()]
 
+# The About block is a text field and browser buttons, declared last. They
+# never touch a pixel, so sweeping them only buries a real dead control.
+if "About" in params:
+    params = params[:params.index("About")]
+
 # Options are discrete; sweep them across their real element range.
 DISCRETE = {"System": (0, 1), "Source": (0, 3), "Mask Pattern": (1, 4), "Interlace": (0, 1)}
 
