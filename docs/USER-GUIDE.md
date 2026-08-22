@@ -133,8 +133,9 @@ Windows  %USERPROFILE%\Documents\Resolume Arena\Extra Effects\
 
 Avenue uses the same layout under its own folder name. It appears as **Old Cathode**.
 
-**Needs Resolume Arena or Avenue 7.3.1 or newer.** The builds are unsigned — see
-[UNSIGNED.md](UNSIGNED.md) for getting them past Gatekeeper and SmartScreen.
+**Needs Resolume Arena or Avenue 7.3.1 or newer.** The macOS builds are Developer ID-signed and
+notarised and simply load; the Windows builds are unsigned, but only the installer trips
+SmartScreen — see [UNSIGNED.md](UNSIGNED.md).
 
 ### OpenFX hosts (Resolve, Vegas, Nuke, Natron)
 
@@ -192,7 +193,7 @@ bar gives a tape that stumbles on the downbeat.
 
 | Symptom | Cause |
 |---|---|
-| **Plugin doesn't appear in Resolume** | Wrong folder, or Resolume older than 7.3.1. Check quarantine on macOS. |
+| **Plugin doesn't appear in Resolume** | Wrong folder, or Resolume older than 7.3.1. An older, pre-notarisation download may still be quarantined, and Resolume skips those silently. |
 | **Mask looks like noise** | Mask Pitch is in output pixels and your raster is too small for it. Raise the pitch, or use RGB Stripe. |
 | **Colours rotate when I adjust Tint** | Expected in NTSC — Tint is a decoder phase error. In PAL it costs saturation instead. |
 | **Colour disappears before the picture does** | Correct. Chrominance is at the top of the band and drowns first. |
