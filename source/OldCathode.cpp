@@ -261,6 +261,38 @@ void OldCathode::SetClockScaleForTest( double scale )
 	clockScale = scale;
 }
 
+//---------------------------------------------------------------------------
+float OldCathode::VerticalRoll( float seconds )
+{
+	const float hold = params[ PT_VERTICAL_HOLD ];
+
+	// First frame: leave the anchor at time zero, roll zero. That makes this
+	// exactly the old `hold * seconds * 0.65` product for as long as nobody
+	// touches the control, which is what keeps tools/sweep.py and every
+	// rendered-frame comparison measuring the same thing they measured before.
+	if( rollAnchorHold < 0.0f )
+	{
+		rollAnchorHold = hold;
+	}
+	else if( hold != rollAnchorHold )
+	{
+		// Once per change, not once per frame: this carries the exact roll
+		// forward rather than integrating it, so a long session cannot
+		// accumulate rounding into a drift, and the frame rate still cannot
+		// affect where the raster sits.
+		rollAnchor += ( seconds - rollAnchorTime ) * rollAnchorHold * 0.65f;
+		rollAnchorTime = seconds;
+		rollAnchorHold = hold;
+	}
+
+	return rollAnchor + ( seconds - rollAnchorTime ) * hold * 0.65f;
+}
+
+float OldCathode::VerticalRollForTest( float seconds )
+{
+	return VerticalRoll( seconds );
+}
+
 double OldCathode::ClockScaleForTest() const
 {
 	return clockScale;
@@ -436,6 +468,10 @@ FFResult OldCathode::ProcessOpenGL( ProcessOpenGLStruct* pGL )
 		signalShader.Set( "Hum", params[ PT_HUM ] );
 
 		signalShader.Set( "VerticalHold", params[ PT_VERTICAL_HOLD ] );
+		// The anchored walk, not `VerticalHold * Time`: see OldCathode.h. The
+		// control itself still goes over as well, because the rolling bar's
+		// width is an amplitude and wants the raw value.
+		signalShader.Set( "VerticalRoll", VerticalRoll( time ) );
 		signalShader.Set( "Jitter", params[ PT_JITTER ] );
 		signalShader.Set( "Tracking", params[ PT_TRACKING ] );
 		signalShader.Set( "HeadSwitch", params[ PT_HEAD_SWITCH ] );

@@ -61,6 +61,12 @@ uniform float Hum;
 
 //Timebase
 uniform float VerticalHold;
+
+//How far the raster has walked, in fractions of a field. NOT `VerticalHold *
+//Time`: that is an absolute product, so moving the control an hour into a
+//composition jumps the picture by hundreds of fields at once. The host side
+//anchors it -- see OldCathode.h -- and hands over the position it has reached.
+uniform float VerticalRoll;
 uniform float Jitter;
 uniform float Tracking;
 uniform float HeadSwitch;
@@ -256,7 +262,7 @@ void main()
 
 	//Vertical hold: the field no longer starts where the flyback expects it to,
 	//so the whole raster walks and takes the blanking interval with it.
-	float srcY = fract( uv.y + VerticalHold * Time * 0.65 );
+	float srcY = fract( uv.y + VerticalRoll );
 
 	float lineIdx = floor( srcY * SignalSize.y );
 	float lineRnd = rnd( lineIdx, FrameIndex, 5.0 ) - 0.5;

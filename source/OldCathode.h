@@ -179,6 +179,14 @@ public:
 	void SetClockScaleForTest( double scale );
 	double ClockScaleForTest() const;
 
+	/// How far the raster has walked at a given moment, in fractions of a field.
+	/// `--roll` needs it: the thing being tested is that a Vertical Hold change
+	/// does NOT jump the picture, and reading the roll either side of one says
+	/// so directly -- where comparing rendered frames could not, because the
+	/// roll is wrapped into 0..1 and a jump of a whole number of fields renders
+	/// identically.
+	float VerticalRollForTest( float seconds );
+
 private:
 
 
@@ -197,6 +205,31 @@ private:
 
 	int phosphorIndex = 0;  //!< Which half of the ping-pong this frame writes to.
 	float frameIndex = 0.0f;//!< Drives the subcarrier's frame-to-frame phase walk.
+
+	//---------------------------------------------------------------------
+	// Where the raster has walked to.
+	//
+	// The picture stays a pure function of the roll -- what changes here is
+	// only which roll a given clock reading maps to.
+	//
+	// `roll = verticalHold * time * 0.65` means a Vertical Hold change moves the
+	// roll by `time * delta`, and `time` is however long the composition has
+	// been open. Nudging the control an hour in is a jump of hundreds of fields,
+	// and because the roll wraps the picture lands at an unrelated offset: it
+	// reads as the raster teleporting rather than as the hold slipping. That is
+	// the same defect orrery issue #6 reported for its Speed control. So
+	// remember the roll reached so far and carry on from there at the new rate.
+	//
+	// Not in the OpenFX build, which renders arbitrary times in arbitrary order
+	// and can keyframe Vertical Hold: a running carry there would make a frame
+	// depend on which frames were rendered before it. That build keeps the pure
+	// product, and says so.
+	//---------------------------------------------------------------------
+	float VerticalRoll( float seconds );
+
+	float rollAnchor  = 0.0f;///< roll already reached at `rollAnchorTime`
+	float rollAnchorTime = 0.0f;///< the clock reading that roll belongs to
+	float rollAnchorHold = -1.0f;///< hold in force since then; < 0 until the first frame
 
 	double clockScale   = 0.0;///< 0 until decided; then 1.0 or 0.001
 	double lastRawTime  = -1.0;

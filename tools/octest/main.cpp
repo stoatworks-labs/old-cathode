@@ -335,6 +335,86 @@ bool readExactly( void* into, size_t bytes )
 	return true;
 }
 
+//---------------------------------------------------------------------------
+/// Prove a Vertical Hold change does not jump the picture.
+///
+/// The roll either side of the change is read directly rather than comparing
+/// rendered frames: the roll is wrapped into 0..1 by `fract`, so a jump of a
+/// whole number of fields renders identically and two frames would match for
+/// entirely the wrong reason. The number says it outright.
+///
+/// Needs no GL, so it runs ahead of the context.
+//---------------------------------------------------------------------------
+int runRollTest()
+{
+	int failures = 0;
+
+	auto check = [ &failures ]( const char* what, double got, double want, double tol ) {
+		const bool ok = std::fabs( got - want ) <= tol;
+		std::printf( "roll %-40s got=%-14.6f want=%-14.6f %s\n", what, got, want, ok ? "ok" : "FAILED" );
+		if( !ok )
+			++failures;
+	};
+
+	const float holds[] = { 0.10f, 0.95f, 0.00f, 0.40f };
+
+	OldCathode plugin;
+	plugin.SetClockScaleForTest( 1.0 );//seconds, said out loud rather than inferred
+
+	// By display name, as everything else in this harness does: the PT_ enum is
+	// private to the plugin and the name is the host's own handle on the control.
+	unsigned int holdIndex = 0;
+	bool found             = false;
+	for( unsigned int i = 0; i < plugin.GetNumParams(); ++i )
+	{
+		const char* name = plugin.GetParamName( i );
+		if( name != nullptr && std::string( name ) == "Vertical Hold" )
+		{
+			holdIndex = i;
+			found     = true;
+			break;
+		}
+	}
+	if( !found )
+	{
+		std::fprintf( stderr, "roll: no parameter named 'Vertical Hold'\n" );
+		return 1;
+	}
+
+	// An hour in, which is where the old arithmetic hurt most and where a live
+	// operator actually is when they reach for the control. The clock only ever
+	// goes forwards from here.
+	float seconds = 3600.0f;
+
+	// Untouched, the anchor must leave the old expression exactly as it was --
+	// this is what keeps tools/sweep.py and every rendered-frame comparison
+	// measuring the same thing they measured before. Vertical Hold defaults to
+	// zero, so this is zero, and the step below out of zero is the one that
+	// used to hurt most.
+	check( "untouched == hold * seconds * 0.65", plugin.VerticalRollForTest( seconds ),
+	       plugin.GetFloatParameter( holdIndex ) * seconds * 0.65, 1e-3 );
+
+	for( const float hold : holds )
+	{
+		const float before = plugin.VerticalRollForTest( seconds );
+
+		// The same instant, a new hold: nothing about the clock has moved, so
+		// the raster may not move either.
+		plugin.SetFloatParameter( holdIndex, hold );
+		check( "a Vertical Hold change does not jump the raster",
+		       plugin.VerticalRollForTest( seconds ), before, 1e-3 );
+
+		// And then it must actually walk at the new rate.
+		const float resumed = plugin.VerticalRollForTest( seconds );
+		seconds += 1.0f;
+		check( "  and walks at the new rate afterwards",
+		       plugin.VerticalRollForTest( seconds ) - resumed, hold * 0.65, 1e-3 );
+	}
+
+	std::printf( "%s\n", failures == 0 ? "roll: all ok" : "roll: FAILURES" );
+	return failures == 0 ? 0 : 1;
+}
+
 void usage()
 {
 	std::printf(
@@ -350,6 +430,7 @@ void usage()
 		"  --measure         print the mean RGB of the middle of the picture\n"
 		"  --list            print every parameter and its default, then exit\n"
 		"  --presets         every factory preset survives every host behaviour\n"
+		"  --roll            a Vertical Hold change does not jump the picture\n"
 		"\n"
 		"  --pipe            read raw RGBA frames from stdin, write them to stdout,\n"
 		"                    so real footage can be put through the chain:\n"
@@ -509,6 +590,7 @@ int main( int argc, char** argv )
 	bool keepAlpha = false;
 	bool listOnly = false;
 	bool measure = false;
+	bool rollOnly = false;
 	bool pipeMode = false;
 	float flatLevel = -1.0f;
 	std::string scriptPath;
@@ -522,6 +604,8 @@ int main( int argc, char** argv )
 
 		if( arg == "--out" )
 			outputPath = next();
+		else if( arg == "--roll" )
+			rollOnly = true;
 		else if( arg == "--width" )
 			width = std::atoi( next().c_str() );
 		else if( arg == "--height" )
@@ -589,6 +673,11 @@ int main( int argc, char** argv )
 		}
 		return -1;
 	};
+
+	// Ahead of the GL context on purpose: this one needs no GPU, so it still
+	// runs on a machine that cannot make a context at all.
+	if( rollOnly )
+		return runRollTest();
 
 	if( listOnly )
 	{

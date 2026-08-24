@@ -193,6 +193,15 @@ struct SignalSettings
 
 	float noise = 0, dropouts = 0, ghostAmount = 0, ghostDelay = 0, interference = 0, hum = 0;
 	float verticalHold = 0, jitter = 0, tracking = 0, headSwitch = 0;
+
+	/// How far the raster has walked, in fractions of a field: the shader's
+	/// `VerticalRoll` uniform. The FFGL build anchors this so that nudging
+	/// Vertical Hold live does not teleport the picture; here it stays the plain
+	/// `verticalHold * time * 0.65` product, because this host renders arbitrary
+	/// times in arbitrary order and can keyframe the control -- a running carry
+	/// would make a frame depend on which frames happened to be rendered before
+	/// it. See OldCathode.h.
+	float verticalRoll = 0;
 	bool interlace = false;
 
 	float time       = 0.0f;
@@ -318,7 +327,7 @@ private:
 	{
 		const float texelY = 1.0f / st.signalH;
 
-		const float srcY    = fractf( v + st.verticalHold * st.time * 0.65f );
+		const float srcY    = fractf( v + st.verticalRoll );
 		const float lineIdx = std::floor( srcY * st.signalH );
 		const float lineRnd = rnd( lineIdx, st.frameIndex, 5.0f ) - 0.5f;
 
@@ -1100,6 +1109,7 @@ private:
 		sig.hum          = float( hum->getValueAtTime( t ) );
 
 		sig.verticalHold = float( verticalHold->getValueAtTime( t ) );
+		sig.verticalRoll = 0.0f;//per-frame, below: it depends on the frame's own time
 		sig.jitter       = float( jitter->getValueAtTime( t ) );
 		sig.tracking     = float( tracking->getValueAtTime( t ) );
 		sig.headSwitch   = float( headSwitch->getValueAtTime( t ) );
@@ -1112,6 +1122,7 @@ private:
 
 			SignalSettings frameSig = sig;
 			frameSig.time           = float( frameTime / fps );
+			frameSig.verticalRoll   = frameSig.verticalHold * frameSig.time * 0.65f;
 			frameSig.frameIndex     = float( std::fmod( frameTime, 100000.0 ) );
 
 			SignalStage stage( sd, frameSig );
