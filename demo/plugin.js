@@ -63,6 +63,32 @@ const MASKS = [
   { name: 'RGB Stripe', spill: 0.15, gain: 2.308 },
 ];
 
+// How far the raster has walked, carried forward across a Vertical Hold change.
+//
+// The roll used to be VerticalHold * Time in the shader. That moves it by
+// Time * delta the instant the control changes, and here Time is how long the
+// page has been open -- and because fract wraps the result, the picture does not
+// speed up, it lands somewhere arbitrary. Dragging the slider read as the raster
+// teleporting rather than the hold slipping. Mirrors OldCathode.h.
+let rollAnchor = 0;
+let rollAnchorTime = 0;
+let rollAnchorHold = -1;
+
+function verticalRoll(hold, seconds) {
+  if (rollAnchorHold < 0) {
+    // First frame: anchor stays at zero, so this is exactly the old product
+    // until the control is touched.
+    rollAnchorHold = hold;
+  } else if (hold !== rollAnchorHold) {
+    // Once per change, not once per frame.
+    rollAnchor += (seconds - rollAnchorTime) * rollAnchorHold * 0.65;
+    rollAnchorTime = seconds;
+    rollAnchorHold = hold;
+  }
+
+  return rollAnchor + (seconds - rollAnchorTime) * hold * 0.65;
+}
+
 const signalWidth = (sys) => Math.round(4 * sys.subcarrierMHz * sys.activeLineMicroseconds);
 const signalHeight = (sys) => sys.activeLines;
 
@@ -170,6 +196,13 @@ uniform float Hum;
 
 //Timebase
 uniform float VerticalHold;
+
+//How far the raster has walked, in fractions of a field. NOT VerticalHold * Time
+//-- an absolute product jumps the picture to an unrelated offset the instant the
+//control moves, because the roll wraps. The page side anchors it and hands over
+//the position reached. Mirrors OldCathode.h. (No backticks in here: this shader
+//lives in a JS template literal, and one would end it.)
+uniform float VerticalRoll;
 uniform float Jitter;
 uniform float Tracking;
 uniform float HeadSwitch;
@@ -365,7 +398,7 @@ void main()
 
 	//Vertical hold: the field no longer starts where the flyback expects it to,
 	//so the whole raster walks and takes the blanking interval with it.
-	float srcY = fract( uv.y + VerticalHold * Time * 0.65 );
+	float srcY = fract( uv.y + VerticalRoll );
 
 	float lineIdx = floor( srcY * SignalSize.y );
 	float lineRnd = rnd( lineIdx, FrameIndex, 5.0 ) - 0.5;
@@ -883,6 +916,9 @@ function createRenderer(gl, quad) {
       signalShader.set('Hum', params.get('hum'));
 
       signalShader.set('VerticalHold', params.get('verticalHold'));
+      // The anchored walk. The control itself still goes over as well, because
+      // the rolling bar's width is an amplitude and wants the raw value.
+      signalShader.set('VerticalRoll', verticalRoll(params.get('verticalHold'), time));
       signalShader.set('Jitter', params.get('jitter'));
       signalShader.set('Tracking', params.get('tracking'));
       signalShader.set('HeadSwitch', params.get('headSwitch'));
