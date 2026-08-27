@@ -102,6 +102,12 @@ then tests `depthBufferID` a second time where it plainly meant `colorTextureID`
 `FFGLFBO` directly** — this plugin rebuilds every buffer whenever the system or
 the composition size changes, so the leak would be per-comparison, not one-off.
 
+Fix filed upstream as [resolume/ffgl#104](https://github.com/resolume/ffgl/pull/104).
+If it lands and the submodule moves past it, the `colorTextureID` block at the top
+of `PassBuffer::Destroy()` can go and `Destroy()` becomes a plain `Release()`. Keep
+the class either way — `Ensure()` is the reallocation guard, and the rest of the
+plugin is written against it.
+
 ### `FFGLScopedFBOBinding.h` is not in the umbrella header
 
 `FFGLSDK.h` includes every other scoped binding and omits that one. Include it by
