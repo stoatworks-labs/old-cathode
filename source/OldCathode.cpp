@@ -24,7 +24,7 @@ static CFFGLPluginInfo PluginInfo(
 	1,                                                    // Plugin major version number
 	0,                                                    // Plugin minor version number
 	FF_EFFECT,                                            // Plugin type
-	"Analogue television signal path and CRT display",    // Plugin description
+	"An analogue television signal path, end to end.\n\nNot a stack of overlays. RGB is encoded onto a colour subcarrier, the whole composite signal is degraded as one, and only then is it decoded again and painted onto a phosphor screen.\n\nEverything that looks like a separate effect - dot crawl, cross-colour, chroma smear, snow - falls out of doing those two conversions imperfectly, which is what the real hardware did.\n\nThen the glass: emissive decay, curvature, a shadow mask, and a vignette that foreshortens with the tube when you view it off-axis.\n\nStart from a Preset, at the bottom.",// Plugin description
 	"Old Cathode FFGL effect"                             // About
 );
 
