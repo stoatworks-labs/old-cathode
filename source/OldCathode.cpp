@@ -18,7 +18,7 @@ using namespace oldcathode;
 static CFFGLPluginInfo PluginInfo(
 	PluginFactory< OldCathode >,                          // Create method
 	"OC01",                                               // Plugin unique ID of maximum length 4.
-	"Old Cathode",                                        // Plugin name
+	"SW Old Cathode",                                     // Plugin name
 	2,                                                    // API major version number
 	1,                                                    // API minor version number
 	1,                                                    // Plugin major version number
