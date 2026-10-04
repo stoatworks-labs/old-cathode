@@ -126,6 +126,13 @@ constant for constant, and the subcarrier's frame-to-frame phase walk comes
 from the timeline frame number — so any frame renders identically however the
 host reaches it, and the dot crawl still crawls.
 
+**Fusion reports no frame rate; there, time-based controls assume 24 fps.**
+Resolve's Fusion page gives an OpenFX plugin no frame rate at all, and the first
+OpenFX builds failed every render there. Now Old Cathode falls back to 24, Resolve's
+default timeline rate, so in Fusion the signal's time-varying faults run as if the
+composition were 24 fps whatever its real rate. A host that reports a rate,
+Resolve's Edit page included, gets its own.
+
 Grab the `old-cathode-ofx-*` zip for your platform from the release and copy
 `OldCathode.ofx.bundle` into the standard OpenFX folder, then restart the host:
 
