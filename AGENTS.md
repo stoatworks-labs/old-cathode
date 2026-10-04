@@ -176,6 +176,22 @@ under it with `kOfxStatErrMissingHostFeature`; this one renders, byte-identical 
 24 fps host's render and unlike a 25 or 30 fps one, in the plugin's own context and
 in General; and a host that reports a rate gets exactly the output it got before.
 
+### Declare the output frame-varying, or Fusion repeats a generator's first frame
+
+`getClipPreferences` calls `setOutputFrameVarying( true )`. The signal's
+time-varying faults run off the frame's time. Without that declaration a host may
+treat the output as fixed while the inputs and parameters hold still. Measured
+2026-10-04 in Resolve Studio 21.1's Fusion page: every fleet generator rendered
+frames 20-22 byte-identical, none having declared it, and with the declaration they
+animate.
+
+A tool fed by a MediaIn is re-rendered every frame either way, so in Fusion this
+changes nothing visible; the declaration is still the correct one, and other hosts
+(Nuke, Natron) cache by it.
+
+The flag changes no pixels: `ofxprobe` renders byte-identical with and without it,
+on a moving sequence, on a still and under `--quirks fusion`.
+
 ## 5. Testing
 
 There is no unit test rig and there cannot usefully be one — the output is a
