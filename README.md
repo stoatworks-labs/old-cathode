@@ -292,6 +292,9 @@ Verified inside Resolume Arena 7.27.0 (macOS, Apple M4 Max, GL 4.1 Metal - 90.5)
 Not verified:
 
 - **Windows and the universal macOS build have never been run**, only built.
+- **The OpenFX build has run in one real host only**: Resolve Studio 21.1's
+  Fusion page, where v1.0.8's fix rendered in a render job (2026-10-04). Never
+  Resolve's Edit or Color page, Vegas, Nuke or Natron.
 
 <!-- attributions:start -->
 This project is built on other people's work — see [ATTRIBUTIONS.md](ATTRIBUTIONS.md).

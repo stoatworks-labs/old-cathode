@@ -153,6 +153,12 @@ One difference worth knowing: Persistence is rebuilt from previous frames each
 render, so very high settings cost render time and truncate the longest trails
 slightly compared with the Resolume build.
 
+**On Resolve's Fusion page, use v1.0.8 or later.** The Fusion page reports the
+frame rate on the effect but not on its clips; earlier OpenFX builds read a
+clip's rate and failed every render there. From v1.0.8 the signal's
+time-varying faults run at the composition's own rate in Fusion, and 24 fps is
+assumed only where a host reports no rate at all.
+
 ---
 
 ## Looking at it without Resolume
