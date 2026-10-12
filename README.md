@@ -1,18 +1,18 @@
 # Old Cathode
 
 > **AI-assisted project.** This codebase was created with [Claude](https://claude.com/claude-code)
-> (Anthropic), directed and reviewed by a human author. The signal path has been
-> verified numerically through an offline render harness that drives the real
-> plugin class in a headless GL context — colour bars round-trip to the right
-> hues, the mask compensation is measured rather than guessed, and the PAL delay
-> line is confirmed to hold hue to 0.0° under a decoder phase error that shifts
-> NTSC by up to 26° (see [Status](#status)). It **loads in Resolume Arena 7.27.0
-> with all six shader stages compiling in the host, and has been run there on real
-> content** rather than only through the offline harness. Check it in your own rig
-> before trusting it in a show.
+> (Anthropic), directed and reviewed by a human author. I've checked the signal path
+> numerically with an offline render harness that drives the real plugin class in a
+> headless GL context: colour bars round-trip to the right hues, the mask compensation is
+> measured rather than guessed, and the PAL delay line holds hue to 0.0° under a decoder
+> phase error that shifts NTSC by up to 26° (see [Status](#status)). It **loads in
+> Resolume Arena 7.27.0 with all six shader stages compiling in the host, and it's been
+> run there on real content**, not just through the offline harness. Check it in your own
+> rig before you trust it in a show.
 
 An analogue television signal path for [Resolume](https://resolume.com) Arena and
-Avenue, as an FFGL effect.
+Avenue, as an FFGL effect: everything that used to go wrong with the telly, going wrong
+for the right reasons.
 
 **Video:** [What it does, in 45 seconds](https://www.youtube.com/watch?v=Dee384n2h5w)
 
@@ -32,12 +32,12 @@ offline harness.</sub>
 
 <sub>Shadow mask · aperture grille · slot mask · RGB stripe</sub>
 
-Old Cathode is not a stack of overlays. It encodes the picture onto a colour
+Rather than stacking overlays, Old Cathode encodes the picture onto a colour
 subcarrier the way a broadcast encoder would have, damages the resulting
 composite waveform as a single signal, and then decodes it again with a
 synchronous demodulator that has no more information than a real receiver had.
 Only after that does it paint the result onto a phosphor screen with a shadow
-mask, a beam that defocuses when it is bright, a curved glass face, and a viewer
+mask, a beam that defocuses when it's bright, a curved glass face, and a viewer
 sitting somewhere in particular.
 
 Almost everything you recognise as "the CRT look" is a **consequence** of that
@@ -61,18 +61,19 @@ PAL decoder averages each line with the one above it and a phase error cancels.
 
 **<https://old-cathode-demo.stoatworks-labs.com>**
 
-Not the plugin — the GLSL from `source/shaders/`, copied across unedited and run in
-WebGL2 over clips generated in the page, with the parameters this plugin's
-constructor declares and the conversions its own code applies. No install, and
-nothing you load leaves your machine.
+It isn't the plugin. It's the GLSL from `source/shaders/`, copied across unedited and
+run in WebGL2 over clips generated in the page, with the parameters this plugin's
+constructor declares and the conversions its own code applies. There's nothing to
+install, and nothing you load leaves your machine.
 
-All six stages run, at the standard's own raster, in 16-bit float. Put the fine-detail clip up and turn Dot Crawl down to watch the notch trade the subcarrier for the detail above 3MHz — the same trade the real sets made.
+All six stages run, at the standard's own raster, in 16-bit float. Put the fine-detail
+clip up and turn Dot Crawl down to watch the notch trade the subcarrier for the detail
+above 3MHz, which is the same trade the real sets made.
 
-It is a port, so it is not evidence about the plugin: a browser is not Resolume,
-GLSL ES 3.00 is not desktop GL 4.1 core, and nothing on that page measures
-anything. The page says all of that itself, in a disclosure at the foot. The
-numbers worth trusting are in [Status](#status) and come from the offline
-harness in this repository.
+It's a port, so it isn't evidence about the plugin: a browser isn't Resolume,
+GLSL ES 3.00 isn't desktop GL 4.1 core, and nothing on that page measures
+anything. The page says so itself, in a disclosure at the foot. The numbers worth
+trusting are in [Status](#status) and come from the offline harness in this repo.
 
 <!-- downloads:start -->
 
@@ -123,15 +124,15 @@ The same signal path also builds as an OpenFX plugin, so it runs in DaVinci
 Resolve (Edit and Color pages, and Fusion), Vegas Pro, Nuke and Natron. The
 standards table is the same code; the five GPU stages are mirrored on the CPU,
 constant for constant, and the subcarrier's frame-to-frame phase walk comes
-from the timeline frame number — so any frame renders identically however the
-host reaches it, and the dot crawl still crawls.
+from the timeline frame number, so any frame renders identically however the
+host gets to it, and the dot crawl still crawls.
 
 **Resolve's Fusion page reports the frame rate on the effect but not on its clips.**
 The first OpenFX builds read a clip's rate, which Fusion leaves out, and failed
 every render there. Now Old Cathode asks the output clip, the source clip and then
 the effect, so in Fusion the signal's time-varying faults run at the timeline's own
-rate (checked at 24 and 25 fps). It assumes 24 fps, Resolve's default timeline rate,
-only where a host reports no rate at all.
+rate (checked at 24 and 25 fps). It only assumes 24 fps, Resolve's default timeline
+rate, where a host reports no rate at all.
 
 Grab the `old-cathode-ofx-*` zip for your platform from the release and copy
 `OldCathode.ofx.bundle` into the standard OpenFX folder, then restart the host:
@@ -144,8 +145,8 @@ Windows  C:\Program Files\Common Files\OFX\Plugins\
 
 ## Controls
 
-Grouped in the inspector as **Signal**, **Sync**, **Tube** and **Geometry** —
-which is also the order the picture travels.
+Grouped in the inspector as **Signal**, **Sync**, **Tube** and **Geometry**,
+which is also the order the picture travels in.
 
 ### Signal
 
@@ -199,10 +200,10 @@ composite a television over whatever is on the layer below.
 
 Drop the plugin into Resolume's plugin folder and restart it:
 
-- **macOS** — `~/Documents/Resolume Arena/Extra Effects/` (or `Resolume Avenue`)
-- **Windows** — `%USERPROFILE%\Documents\Resolume Arena\Extra Effects\`
+- **macOS:** `~/Documents/Resolume Arena/Extra Effects/` (or `Resolume Avenue`)
+- **Windows:** `%USERPROFILE%\Documents\Resolume Arena\Extra Effects\`
 
-It appears in the effects list as **Old Cathode**.
+It turns up in the effects list as **Old Cathode**.
 
 The builds are unsigned; see [docs/UNSIGNED.md](docs/UNSIGNED.md) for getting them
 past Gatekeeper and SmartScreen.
@@ -224,7 +225,7 @@ folder above.
 ## Looking at it without Resolume
 
 `octest` renders the real chain to a PNG through a headless GL context. It drives
-the actual plugin class through the actual FFGL entry sequence, so it is testing
+the actual plugin class through the actual FFGL entry sequence, so it's testing
 the shipped code rather than a copy of it.
 
 ```bash
@@ -252,9 +253,9 @@ from stdin and writing them to stdout:
 ffmpeg -i in.mov -f rawvideo -pix_fmt rgba - | ./build/octest --pipe --width 1920 --height 1080 --script params.txt | ffmpeg -f rawvideo -pix_fmt rgba -s 1920x1080 -r 30 -i - out.mp4
 ```
 
-`--script` is parameter automation — a text file of `frame  Parameter Name
-value` lines, held before the first key and after the last, linearly
-interpolated between. That is how the video above was made.
+`--script` is parameter automation: a text file of `frame  Parameter Name
+value` lines, held before the first key and after the last, and linearly
+interpolated between. That's how the video above was made.
 
 ## Status
 
@@ -269,11 +270,11 @@ Verified through the offline harness on an M4 Max:
   of the maskless baseline.
 - **The PAL delay line works.** Under a 16.8° decoder reference error, NTSC hue
   shifts by 6.5–26° across the bars while PAL holds hue at 0.0° and loses ~8%
-  saturation instead — which is the trade PAL exists to make.
+  saturation instead, which is the trade PAL exists to make.
 - **All 33 controls demonstrably do something.** `tools/sweep.py` renders every
-  parameter at both ends of its range and fails if any made no difference — the
-  only way to catch a uniform name that does not match between the C++ and the
-  GLSL, since that fails silently rather than at build time.
+  parameter at both ends of its range and fails if any made no difference. It's
+  the only way to catch a uniform name that doesn't match between the C++ and the
+  GLSL, because that fails silently rather than at build time.
 - **Cost is 0.34 ms/frame at 1080p and 0.83 ms at 4K.** The expensive filtering
   runs at the SD raster, so it barely scales with composition size. Both figures
   are from one machine, not from CI.
@@ -281,12 +282,12 @@ Verified through the offline harness on an M4 Max:
 Verified inside Resolume Arena 7.27.0 (macOS, Apple M4 Max, GL 4.1 Metal - 90.5):
 
 - **It loads, and all six shader stages compile in the host.** `InitGL` succeeded
-  on every one of 142 instantiations during a session — Arena builds the effect
-  repeatedly for its browser previews, so that is 142 clean shader compiles.
+  on every one of 142 instantiations during a session. Arena builds the effect
+  over and over for its browser previews, so that's 142 clean shader compiles.
 - **Arena registers it correctly**, reported by Arena's own REST API alongside its
   128 built-in effects: idstring `OC01`, name `Old Cathode`, category
   `Video Effects`, description intact.
-- **It has been run on real content in the host**, not only through the offline
+- **It's been run on real content in the host**, not just through the offline
   harness.
 
 Not verified:
