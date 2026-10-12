@@ -205,8 +205,9 @@ Drop the plugin into Resolume's plugin folder and restart it:
 
 It turns up in the effects list as **Old Cathode**.
 
-The builds are unsigned; see [docs/UNSIGNED.md](docs/UNSIGNED.md) for getting them
-past Gatekeeper and SmartScreen.
+The macOS builds are signed and notarised and just load. The Windows builds are
+unsigned; see [docs/UNSIGNED.md](docs/UNSIGNED.md) for getting them past
+SmartScreen.
 
 ## Build
 
